@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cabina de Billetes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Monoton&display=swap">
+<style>
+:root{--bg:#e4ecef;--fg:#0f2230;--mut:#4b6575;--neon:#ff3d8b;--amber:#ffb347;--ice:#7fe9ff;--panel:#0b1a24;--ln:#24465a;--lt:#e9f1f5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#070f16;--fg:#e9f1f5;--mut:#8fa6b3;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#070f16;--fg:#e9f1f5;--mut:#8fa6b3;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:500 16px/1.5 "Chakra Petch",system-ui,sans-serif;display:flex;justify-content:center;padding:14px}
+main{width:100%;max-width:420px}
+.cab{background:linear-gradient(160deg,#1c3a4d,#0b1a24 45%,#2a1236);border-radius:26px;padding:12px;border:2px solid var(--ln);box-shadow:0 0 0 3px #0b1a24,0 0 28px rgba(255,61,139,.35)}
+.mq{text-align:center;padding:6px 4px 10px;color:var(--lt)}
+.mq h1{font:400 34px/1 Monoton,Impact,sans-serif;margin:0;color:var(--neon);text-shadow:0 0 12px rgba(255,61,139,.8);letter-spacing:1px}
+.mq p{margin:4px 0 0;color:var(--ice);font-size:13px;opacity:.85}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.hud div{background:#050c12;border:1px solid var(--ln);border-radius:8px;padding:5px 8px;color:var(--lt)}
+.hud small{display:block;color:var(--mut);font-size:11px}
+.hud b{font:700 21px/1.1 "Chakra Petch",sans-serif;color:var(--amber);text-shadow:0 0 8px rgba(255,179,71,.6)}
+.scr{position:relative;border-radius:14px;overflow:hidden;border:2px solid #050c12;line-height:0}
+.scr::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.45))}
+canvas{width:100%;height:auto;display:block;touch-action:none}
+canvas.play{cursor:none}
+.ov{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;line-height:1.4;color:var(--lt);background:radial-gradient(ellipse at center,rgba(5,12,18,.55),rgba(5,12,18,.88))}
+.ov[hidden]{display:none}
+.ov .big{font:700 56px/1 "Chakra Petch",sans-serif;color:var(--amber);text-shadow:0 0 16px rgba(255,179,71,.7);margin:0}
+.ov p{margin:0}
+.pot{border:1px solid var(--neon);border-radius:999px;padding:4px 16px;color:var(--neon);text-shadow:0 0 8px rgba(255,61,139,.7)}
+.pot b{font-size:20px}
+.fine{font-size:12px;color:var(--mut)}
+.coin{font:700 18px "Chakra Petch",sans-serif;letter-spacing:.06em;color:var(--amber);background:rgba(255,179,71,.08);border:2px solid var(--amber);border-radius:999px;padding:13px 28px 13px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:12px;box-shadow:0 0 14px rgba(255,179,71,.45),inset 0 0 10px rgba(255,179,71,.2);text-shadow:0 0 8px rgba(255,179,71,.7);transition:background .15s,color .15s,transform .1s}
+.coin i{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:inline-grid;place-items:center;font:700 13px/1 "Chakra Petch",sans-serif;font-style:normal}
+.coin:hover{background:var(--amber);color:#1d1200;text-shadow:none}
+.coin:active{transform:translateY(2px) scale(.98)}
+.coin:focus-visible,.ghost:focus-visible{outline:3px solid var(--ice);outline-offset:3px}
+.coin.go{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 26px rgba(255,179,71,.8),inset 0 0 14px rgba(255,179,71,.3)}}
+.ghost{font:500 15px "Chakra Petch",sans-serif;background:none;border:0;color:var(--ice);cursor:pointer;padding:8px 12px;text-decoration:underline;text-underline-offset:4px}
+.slot{width:120px;height:6px;border-radius:3px;background:#050c12;margin:12px auto 2px;box-shadow:0 0 0 2px var(--ln),0 0 10px rgba(255,61,139,.5)}
+.note{text-align:center;color:var(--mut);font-size:12px;margin:12px 0 0}
+dl{display:grid;grid-template-columns:auto auto;gap:2px 22px;margin:0;font-size:15px}
+dd{margin:0;text-align:right;color:var(--amber);font-weight:700}
+dialog{max-height:calc(100dvh - 32px);overflow:auto;border:2px solid var(--neon);border-radius:18px;background:#0b1a24;color:var(--lt);padding:22px 22px 18px;max-width:380px;width:calc(100% - 32px);box-shadow:0 0 30px rgba(255,61,139,.45);font:500 15px/1.5 "Chakra Petch",sans-serif}
+dialog::backdrop{background:rgba(3,8,12,.8);backdrop-filter:blur(3px)}
+dialog h2{font:700 22px/1.2 "Chakra Petch",sans-serif;margin:0 0 4px;color:var(--ice)}
+dialog ul{margin:12px 0 16px;padding:0;list-style:none}
+dialog li{padding:7px 0 7px 22px;position:relative;border-top:1px solid var(--ln)}
+dialog li::before{content:"";position:absolute;left:3px;top:15px;width:8px;height:8px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon)}
+dialog li b{color:var(--amber)}
+.acts{display:flex;flex-direction:column;align-items:center;gap:6px}
+.terms{margin:0 0 12px;border-top:1px solid var(--ln);padding-top:8px;font-size:13px;color:var(--mut)}
+.terms summary{cursor:pointer;color:var(--ice);font-size:14px}
+.terms summary:focus-visible{outline:3px solid var(--ice);outline-offset:3px}
+.terms p{margin:8px 0}
+.terms b{color:var(--lt)}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;font-size:14px;cursor:pointer}
+.chk input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--neon);flex:none}
+.coin:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;animation:none}
+.coin:disabled:hover{background:rgba(255,179,71,.08);color:var(--amber)}
+@media (prefers-reduced-motion:reduce){.coin.go{animation:none}.coin{transition:none}}
+</style></head><body><main>
+<div class="cab">
+<div class="mq"><h1>Cabina de Billetes</h1><p>Pagás $500 y el viento decide cuánto volvés a ver</p></div>
+<div class="hud"><div><small>Tiempo</small><b id="sTime">30</b></div><div><small>Pozo</small><b id="sPozo">$0</b></div><div><small>Capturado</small><b id="sGot">$0</b></div></div>
+<div class="scr">
+<canvas id="c" aria-label="Cabina con billetes de diez pesos volando"></canvas>
+<div class="ov" id="ovStart">
+<p class="pot">Pozo acumulado <b id="oPozo">$0</b></p>
+<p>Agarrá todos los billetes que puedas antes de que se acabe el tiempo.</p>
+<button class="coin go" id="insert"><i>$</i>Insertar $500</button>
+<p class="fine" id="fine"></p>
+</div>
+<div class="ov" id="ovEnd" hidden>
+<p>Recuperaste</p>
+<p class="big" id="rGot">$0</p>
+<p id="rMsg"></p>
+<dl><dt>Reembolso</dt><dd id="rRef">$0</dd><dt>Al pozo</dt><dd id="rPot">$0</dd><dt>Casa</dt><dd id="rCasa">$0</dd></dl>
+<button class="coin" id="again"><i>$</i>Jugar de nuevo</button>
+<p class="fine" id="rStat"></p>
+<p class="fine" id="rSeed"></p>
+</div>
+<div class="ov" id="ovWait" hidden><p id="waitMsg"></p><button class="coin go" id="begin" hidden></button></div>
+</div>
+<div class="slot" aria-hidden="true"></div>
+</div>
+<p class="note" id="note"></p>
+</main>
+<dialog id="dlg" aria-labelledby="dT">
+<h2 id="dT">Reglas de la cabina</h2>
+<ul>
+<li>Pagás <b>$500</b>. Se sueltan en billetes de $10, más lo que haya en el pozo (<b id="dPozo">$0</b>).</li>
+<li>Tenés <b>30 segundos</b> para agarrar todos los billetes que puedas.</li>
+<li>Tocá o hacé clic para cerrar la mano sobre un billete. Tarda un instante, agarra de a uno y tenés que esperar un poco entre intentos.</li>
+<li>Tu mano mueve el aire y aleja los billetes.</li>
+<li>Al terminar te devolvemos <b>lo que agarraste</b>. El resto queda en el pozo para el próximo jugador, y una parte va a la casa.</li>
+<li>La partida empieza cuando tocás <b>Empezar</b> y no se puede reanudar.</li>
+</ul>
+<details class="terms"><summary>Ver términos</summary>
+<p><b>Naturaleza del juego.</b> Cabina de Billetes es un juego de habilidad. El resultado depende de las acciones del jugador durante la partida. No es un sorteo ni una apuesta.</p>
+<p><b>Pago y reembolso.</b> Para jugar se abona $500. Al finalizar, se reembolsa al medio de pago original un monto equivalente a los billetes capturados. El reembolso puede ser de $0 hasta el total de los billetes en juego, y no está garantizado.</p>
+<p><b>Pozo.</b> Los billetes no capturados se acumulan en un pozo virtual que se suma a la partida siguiente. El pozo no pertenece a ningún jugador.</p>
+<p><b>Edad.</b> Solo pueden jugar personas mayores de 18 años.</p>
+<p><b>Fallas técnicas.</b> Si una falla del sistema (no de tu conexión o dispositivo) impide completar la partida, se reembolsan los $500. Si abandonás o cerrás una partida ya iniciada, se considera terminada con $0 capturados.</p>
+<p><b>Responsable y contacto.</b> Operado por [razón social / CUIT]. Contacto: [mail]. No estamos afiliados a Mercado Pago.</p>
+<p><b>Juego responsable.</b> Jugá solo con dinero que puedas perder. Si sentís que perdés el control, hacé una pausa.</p>
+</details>
+<label class="chk"><input type="checkbox" id="ok"><span>Soy mayor de 18 años y acepto los términos.</span></label>
+<div class="acts"><button class="coin" id="go" disabled><i>$</i>Pagar $500 con Mercado Pago</button><button class="ghost" id="back">Volver</button></div>
+</dialog>
+<script src="sim.js"></script>
+<script>
+const {W,H,DT,FRAMES,BANK,P}=Sim;
+const $=id=>document.getElementById(id);
+const cv=$('c'),cx=cv.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2);
+cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
+const cfg={pozo:0,mode:'test'};
+const rand=()=>Math.random()*1e9|0;
+let S=Sim.newGame(rand(),BANK),mode='idle',ptr=null,tap=null,run=null,gameId=null,fanA=0,last=performance.now(),acc=0;
+
+async function api(p,body){
+  const r=await fetch('/api'+p,{method:body!==undefined?'POST':'GET',headers:{'content-type':'application/json'},body:body!==undefined?JSON.stringify(body):undefined});
+  let j={};try{j=await r.json()}catch(e){}return{s:r.status,j};
+}
+function showPozo(){['sPozo','oPozo','dPozo'].forEach(i=>$(i).textContent='$'+cfg.pozo)}
+function idleGame(){S=Sim.newGame(rand(),BANK+Math.min(cfg.pozo,1000))}
+function showOnly(id){['ovStart','ovEnd','ovWait'].forEach(o=>$(o).hidden=o!==id)}
+function showWait(msg,label,fn){
+  mode='wait';$('waitMsg').textContent=msg;showOnly('ovWait');
+  const b=$('begin');b.hidden=!label;b.disabled=false;if(label){b.innerHTML='<i>▶</i>'+label;b.onclick=fn}
+}
+function goIdle(){mode='idle';showOnly('ovStart')}
+async function refreshState(){const r=await api('/state');if(r.s===200){cfg.pozo=r.j.pozo;cfg.mode=r.j.mode;showPozo();idleGame()}}
+
+function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
+cv.addEventListener('pointermove',e=>{ptr=pos(e)});
+cv.addEventListener('pointerdown',e=>{ptr=pos(e);tap={x:ptr.x,y:ptr.y};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointerleave',()=>{ptr=null});
+window.addEventListener('beforeunload',e=>{if(mode==='play'){e.preventDefault();e.returnValue=''}});
+
+const dlg=$('dlg');
+function openRules(){showPozo();$('ok').checked=false;$('go').disabled=true;dlg.showModal()}
+$('insert').onclick=openRules;$('again').onclick=openRules;
+$('back').onclick=()=>dlg.close();
+$('ok').onchange=()=>{$('go').disabled=!$('ok').checked};
+$('go').onclick=async()=>{
+  dlg.close();showWait('Abriendo Mercado Pago…');
+  const r=await api('/orders',{});
+  if(r.s===200&&r.j.url){location.href=r.j.url;return}
+  showWait(r.s===429?'Demasiados intentos. Probá de nuevo en un rato.':'No pudimos abrir el pago. No se cobró nada.','Volver',goIdle);
+};
+
+// Regreso desde Mercado Pago: ?game=ID&payment_id=...&status=...
+async function onReturn(id,pid,stat){
+  history.replaceState(null,'','?game='+id);
+  if(stat==='failure'||stat==='rejected')return showWait('El pago no se completó. No se cobró nada.','Volver',goIdle);
+  showWait('Verificando tu pago…');
+  for(let i=0;i<20;i++){
+    const s=(pid&&i%3===0)?(await api('/games/'+id+'/confirm',{payment_id:pid})).j:(await api('/games/'+id)).j;
+    if(s.status==='paid')return showWait('Pago acreditado. El pozo está en $'+cfg.pozo+'. La partida dura 30 segundos y no se puede reanudar.','Empezar',()=>begin(id));
+    if(s.status==='started'||s.status==='finished')return showWait('Esta partida ya fue usada.','Volver',goIdle);
+    await new Promise(r=>setTimeout(r,2000));
+  }
+  showWait('Todavía no vemos el pago acreditado. Si pagaste, esperá un momento y reintentá.','Reintentar',()=>onReturn(id,pid,stat));
+}
+async function begin(id){
+  $('begin').disabled=true;
+  const r=await api('/games/'+id+'/start',{});
+  if(r.s!==200)return showWait(r.j.error==='already_started'?'Esta partida ya fue iniciada y no se puede reanudar.':'No pudimos iniciar la partida.','Volver',goIdle);
+  gameId=id;S=Sim.newGame(r.j.seed,r.j.total);S.pops=[];run={f:0,inputs:[],taps:[]};tap=null;mode='play';
+  showOnly(null);cv.classList.add('play');
+}
+
+async function finish(){
+  mode='sending';cv.classList.remove('play');showWait('Validando tu partida…');
+  const body={ptr:run.inputs,taps:run.taps},local=S.got;
+  let r=null;
+  for(let i=0;i<4&&!r;i++){try{const x=await api('/games/'+gameId+'/finish',body);if(x.s===200)r=x.j;else if(x.s<500&&x.s!==425)break;}catch(e){}if(!r)await new Promise(z=>setTimeout(z,1500))}
+  if(!r)return showWait('No pudimos validar la partida. Guardá este código y escribinos: '+gameId,'Reintentar',finish);
+  if(r.got!==local)console.warn('El servidor calculó $'+r.got+' y el cliente $'+local);
+  const pct=r.got/BANK*100;
+  $('rGot').textContent='$'+r.got;
+  $('rMsg').textContent=pct>=50?'Le ganaste al viento.':pct>=25?'Nada mal para un huracán.':pct>=10?'Casi. El viento sigue ganando.':'El viento se quedó con casi todo.';
+  $('rRef').textContent='$'+r.refund;$('rPot').textContent='$'+r.toPozo;$('rCasa').textContent='$'+r.casa;
+  $('rStat').textContent=r.refundStatus==='done'?'Reembolso enviado a tu medio de pago.':r.refundStatus==='none'?'No capturaste billetes: no hay reembolso.':'Tu reembolso está en proceso. Si no lo ves en 24 horas, escribinos con el código de partida.';
+  $('rSeed').textContent='Partida '+gameId.slice(0,8);
+  cfg.pozo=r.pozo;showPozo();idleGame();mode='result';showOnly('ovEnd');
+}
+
+function frame(){
+  if(mode==='play'){
+    const p=tap||ptr,k=p?Sim.pack(p.x,p.y):-1,t=!!tap&&k>=0;
+    run.inputs.push(k);if(t)run.taps.push(run.f);
+    Sim.tick(S,k,t);tap=null;run.f++;
+    if(run.f>=FRAMES)finish();
+  }else Sim.tick(S,-1,false);
+}
+
+function drawBill(b){
+  cx.save();cx.translate(b.x,b.y);cx.rotate(b.r);
+  cx.scale(.25+.75*Math.abs(Math.cos(b.f)),1);
+  cx.fillStyle='#e2a468';cx.strokeStyle='#7fe9ff';cx.lineWidth=1.2;
+  cx.fillRect(-14,-7,28,14);cx.strokeRect(-14,-7,28,14);
+  cx.fillStyle='#fff0d4';cx.fillRect(-10,-4,20,8);
+  cx.fillStyle='#8a4a1c';cx.font='bold 8px system-ui';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('10',0,.5);
+  cx.restore();
+}
+function draw(dt){
+  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0b1e2b');g.addColorStop(.6,'#1a1030');g.addColorStop(1,'#2a1038');
+  cx.fillStyle=g;cx.fillRect(0,0,W,H);
+  cx.strokeStyle='rgba(255,61,139,.2)';cx.lineWidth=1;
+  const hy=H*.58;
+  for(let i=-8;i<=8;i++){cx.beginPath();cx.moveTo(W/2+i*14,hy);cx.lineTo(W/2+i*90,H);cx.stroke()}
+  for(let i=1;i<9;i++){const y=hy+(H-hy)*Math.pow(i/8,1.8);cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  const G=Sim.gust(S),lg=cx.createRadialGradient(W/2,H,10,W/2,H,320);
+  lg.addColorStop(0,`rgba(255,179,71,${.12+.28*G})`);lg.addColorStop(.5,`rgba(255,61,139,${.05+.1*G})`);lg.addColorStop(1,'rgba(255,61,139,0)');
+  cx.fillStyle=lg;cx.fillRect(0,0,W,H);
+  cx.fillStyle='#050c12';cx.fillRect(0,H-22,W,22);
+  cx.fillStyle='#ffb347';cx.fillRect(0,H-22,W,2);
+  fanA+=dt*(6+G*P.fan*30);
+  cx.save();cx.translate(W/2,H-12);cx.strokeStyle='#ffb347';cx.lineWidth=3;
+  for(let i=0;i<3;i++){const a=fanA+i*2.094;cx.beginPath();cx.moveTo(0,0);cx.lineTo(Math.cos(a)*44,Math.sin(a)*5);cx.stroke()}
+  cx.restore();
+  for(const b of S.bills)if(b.on)drawBill(b);
+  if(S.pops)for(const p of S.pops){p.t+=dt;if(p.t<.7){cx.globalAlpha=1-p.t/.7;cx.fillStyle='#ffb347';cx.font='bold 15px system-ui';cx.textAlign='center';cx.fillText('+10',p.x,p.y-p.t*40);cx.globalAlpha=1}}
+  if(S.gr){const k=S.gr.t/P.close;cx.strokeStyle='#ff3d8b';cx.lineWidth=3;cx.beginPath();cx.arc(S.gr.x,S.gr.y,P.grab*(2.2-1.2*k),0,6.283);cx.stroke()}
+  if(ptr&&mode==='play'){cx.strokeStyle=S.cd>0?'rgba(127,233,255,.35)':'#7fe9ff';cx.lineWidth=2;cx.beginPath();cx.arc(ptr.x,ptr.y,P.grab,0,6.283);cx.stroke();
+    cx.strokeStyle='rgba(127,233,255,.2)';cx.beginPath();cx.arc(ptr.x,ptr.y,P.rr,0,6.283);cx.stroke()}
+}
+function loop(now){
+  const dt=Math.min(.1,(now-last)/1000);last=now;acc+=dt;
+  while(acc>=DT){frame();acc-=DT}  // paso fijo: lo que ve el jugador es lo que reproduce el servidor
+  if(mode==='play'){
+    const left=Math.max(0,Math.ceil((FRAMES-run.f)/60));
+    $('sTime').textContent=left;$('sTime').style.color=left<=5?'#ff3d8b':'';$('sGot').textContent='$'+S.got;
+  }else if(mode==='idle'){$('sTime').textContent=Sim.SECONDS;$('sTime').style.color='';$('sGot').textContent='$0'}
+  draw(dt);requestAnimationFrame(loop);
+}
+
+(async()=>{
+  await refreshState();
+  $('fine').textContent=cfg.mode==='test'?'Modo de prueba · no se cobra plata real':'Pago seguro con Mercado Pago';
+  $('note').textContent=cfg.mode==='test'?'Modo de prueba: usá usuarios y tarjetas de prueba de Mercado Pago.':'';
+  requestAnimationFrame(loop);
+  const q=new URLSearchParams(location.search);
+  if(q.get('game'))onReturn(q.get('game'),q.get('payment_id'),q.get('status')||q.get('collection_status'));
+})();
+</script></body></html>

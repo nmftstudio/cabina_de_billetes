@@ -1,0 +1,12 @@
+{
+  "name": "cabina-de-billetes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend de Cabina de Billetes: cobro con Mercado Pago, validación por re-simulación y reembolso parcial",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "test": "node --disable-warning=ExperimentalWarning test.js"
+  },
+  "dependencies": { "express": "^5.1.0" }
+}
